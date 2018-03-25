@@ -6,7 +6,7 @@ package converter;
  * @author Thanakrit Daorueang
  */
 
-public enum Length {
+public enum Length implements Unit<Length>{
     Mile(1609.344),
     Kilometer(1000.0),
     Meter(1.0),
@@ -21,8 +21,13 @@ public enum Length {
      * This use to set the this value.
      * @param value is the value that input.
      */
-    private Length(double value) {
+    Length(double value) {
         this.value = value;
+    }
+
+    @Override
+    public double convert(double amount, Length toUnit) {
+        return this.getValue() * amount/toUnit.getValue() ;
     }
 
     /**

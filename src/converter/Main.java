@@ -14,10 +14,10 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            Parent root = (Parent)FXMLLoader.load(
-                    getClass().getResource("ConverterUI.fxml"));
+            Parent root = (Parent)FXMLLoader.load(getClass().getResource("ConverterUI.fxml"));
             Scene scene = new Scene(root);
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.sizeToScene( );
             stage.show();
         } catch(Exception e) {

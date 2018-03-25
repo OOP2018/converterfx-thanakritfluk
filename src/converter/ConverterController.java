@@ -1,11 +1,19 @@
 package converter;
 
+import com.sun.javafx.scene.layout.region.Margins;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
+
+import java.awt.*;
 
 /**
  * This class use to handle to calculate the different type of unit length.
+ *
  * @author Thanakrit Daorueang
  */
 
@@ -19,57 +27,51 @@ public class ConverterController {
     @FXML
     private Button clear;
     @FXML
-    private ComboBox<Length> comboBox1;
+    private ComboBox<Unit> comboBox1;
     @FXML
-    private ComboBox<Length> comboBox2;
+    private ComboBox<Unit> comboBox2;
+    @FXML
+    private Menu unit;
+    @FXML
+    private MenuItem length;
+    @FXML
+    private MenuItem weight;
+    @FXML
+    private MenuItem temperature;
+    @FXML
+    private MenuItem exit;
 
-    private static  Alert warningAlert = new Alert(Alert.AlertType.WARNING);
+    private static Alert warningAlert = new Alert(Alert.AlertType.WARNING);
 
 
     /**
      * This method use to convert the value of each unit length.
+     *
      * @param event is the event is to use do an action.
      */
     @FXML
     public void handleConvert(ActionEvent event) {
         try {
-            if (text1.getLength() != 0 && text2.getLength() == 0) {
-                String text = text1.getText().trim();
-                setTextHandle(text, text2);
-            } else if (text2.getLength() != 0 && text1.getLength() == 0) {
-                String text = text2.getText().trim();
-                setTextHandle(text, text1);
-            }else {
-                String text = text1.getText().trim();
-                setTextHandle(text, text2);
-                warningAlert.setHeaderText("You need to clear before next calculate.");
-                warningAlert.showAndWait();
-            }
+            text1.setStyle("-fx-border-color: none");
+            text2.setStyle("-fx-border-color: none");
+            Unit unit1 = comboBox1.getValue();
+            Unit unit2 = comboBox2.getValue();
+            if (event.getSource()==text1) {
 
+                String text = text1.getText().trim();
+                double value = unit1.convert(Double.parseDouble(text),unit2);
+                text2.setText(String.format("%.6g",value));
+            } else {
+                String text = text2.getText().trim();
+                double value = unit2.convert(Double.parseDouble(text),unit1);
+                text1.setText(String.format("%.6g",value));
+            }
         } catch (Exception e) {
             e.getMessage();
+            text1.setStyle("-fx-border-color: red");
+            text2.setStyle("-fx-border-color: red");
         }
-
-
     }
-
-    /**
-     * This use to calculate the value of unit length.
-     * @param text that user input in the text field.
-     * @param textField is the test field use to calculate.
-     */
-    public void setTextHandle(String text, TextField textField) {
-        if (Double.parseDouble(text) < 0) {
-            warningAlert.setHeaderText("Input not valid");
-            warningAlert.showAndWait();
-        } else {
-                Length unit1 = comboBox1.getValue();
-                Length unit2 = comboBox2.getValue();
-                textField.setText(String.format("%.4g",Double.parseDouble(text) * unit1.getValue() / unit2.getValue()));
-                System.out.println("handleCovert converting " + text);
-            }
-        }
-
 
     /**
      * This use to clear the text field.
@@ -81,19 +83,41 @@ public class ConverterController {
     }
 
     /**
-     * This use to add all the unit length to combo box.
+     * This use to load item to combobox.
+     * @param unitType the type of unit.
      */
     @FXML
-    public void initialize(){
-        System.out.println("Running initialize");
+   public void loadUnitType(UnitType unitType){
+        Unit<?>[] units = UnitFactory.getInstance().getUnits(unitType);
         if (comboBox1!=null){
-            comboBox1.getItems().addAll(Length.values());
+            comboBox1.getItems().clear();
+            comboBox1.getItems().addAll(units);
             comboBox1.getSelectionModel().select(0);
         }
         if (comboBox2!=null){
-            comboBox2.getItems().addAll(Length.values());
+            comboBox2.getItems().clear();
+            comboBox2.getItems().addAll(units);
             comboBox2.getSelectionModel().select(1);
         }
+   }
+
+    /**
+     * Event handle for selecting unit type.
+     * @param event
+     */
+    public void handleUnitSelected(ActionEvent event) {
+        MenuItem mitem = (MenuItem) event.getSource();
+        String unitname = mitem.getText();
+        UnitType unittype = UnitType.valueOf(unitname);
+        loadUnitType(unittype);
+    }
+
+    /**
+     * This use to exit the program.
+     */
+    @FXML
+    public void exit() {
+        System.exit(0);
     }
 
 }
